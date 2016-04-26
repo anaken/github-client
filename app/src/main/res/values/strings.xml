@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Github Client</string>
+    <string name="goto_user_repo">Посмотреть</string>
+</resources>
