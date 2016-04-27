@@ -2,59 +2,89 @@ package biz.mesto.anaken.githubclient;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.ProgressBar;
 
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
+
+import java.util.ArrayList;
 
 public class UsersListFragment extends Fragment {
 
     View view;
     UsersListAdapter usersListAdapter;
+    ListView lvMain;
+    ArrayList<User> users;
+    Boolean loading = false;
+    ProgressBar progressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.users_list_fragment, container, false);
+        progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
 
-        String url = "https://api.github.com/users";
+        users = new ArrayList<>();
 
-        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        lvMain = (ListView) view.findViewById(R.id.listView);
+        lvMain.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {}
 
-        GsonRequest<User[]> jsObjRequest = new GsonRequest<>(
-            url,
-            User[].class,
-            null,
-            new Response.Listener<User[]>() {
-                @Override
-                public void onResponse(User[] response) {
-                    usersListAdapter = new UsersListAdapter(getActivity(), response);
-
-                    ListView lvMain = (ListView) view.findViewById(R.id.listView);
-                    lvMain.setAdapter(usersListAdapter);
-
-//                    String text = "";
-//                    for (User user : response) {
-//                        text += user.login + "\n";
-//                    }
-                    Toast.makeText(getActivity(), "Юзверов: " + response.length, Toast.LENGTH_SHORT).show();
-                }
-            },
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getActivity(), "Ошибка запроса к серверу", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (totalItemCount > 0 && (firstVisibleItem + visibleItemCount) >= totalItemCount) {
+                    if ( ! loading) {
+                        setLoading(true);
+                        drawUsersList(users.get(totalItemCount - 1).id);
+                    }
                 }
             }
-        );
+        });
 
-        requestQueue.add(jsObjRequest);
+        if (savedInstanceState != null) {
+            users = savedInstanceState.getParcelableArrayList("users");
+            usersListAdapter = new UsersListAdapter(getActivity(), users);
+            lvMain.setAdapter(usersListAdapter);
+            setLoading(false);
+        }
+        else {
+            drawUsersList(0);
+        }
 
         return view;
+    }
+
+    private void drawUsersList(int since) {
+        UsersProvider.getUsers(getActivity(), new Response.Listener<User[]>() {
+            @Override
+            public void onResponse(User[] responseUsers) {
+                for (User u : responseUsers) {
+                    users.add(u);
+                }
+                if (usersListAdapter == null) {
+                    usersListAdapter = new UsersListAdapter(getActivity(), users);
+                    lvMain.setAdapter(usersListAdapter);
+                }
+                else {
+                    usersListAdapter.notifyDataSetChanged();
+                }
+                setLoading(false);
+            }
+        }, since);
+    }
+
+    private void setLoading(Boolean loads) {
+        loading = loads;
+        progressBar.setVisibility(loading ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    public void onSaveInstanceState(Bundle savedState) {
+        super.onSaveInstanceState(savedState);
+        savedState.putParcelableArrayList("users", users);
     }
 }

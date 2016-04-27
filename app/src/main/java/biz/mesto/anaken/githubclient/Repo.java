@@ -5,21 +5,15 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
-public class User implements Parcelable {
-    @SerializedName("login") public String login;
+public class Repo implements Parcelable {
     @SerializedName("id") public int id;
+    @SerializedName("name") public String name;
     @SerializedName("url") public String url;
-    @SerializedName("html_url") public String html_url;
-    @SerializedName("repos_url") public String repos_url;
-    @SerializedName("avatar_url") public String avatar_url;
 
-    public User(Parcel parcel) {
-        login = parcel.readString();
+    public Repo(Parcel parcel) {
         id = parcel.readInt();
+        name = parcel.readString();
         url = parcel.readString();
-        html_url = parcel.readString();
-        repos_url = parcel.readString();
-        avatar_url = parcel.readString();
     }
 
     @Override
@@ -29,12 +23,9 @@ public class User implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(login);
         dest.writeInt(id);
+        dest.writeString(name);
         dest.writeString(url);
-        dest.writeString(html_url);
-        dest.writeString(repos_url);
-        dest.writeString(avatar_url);
     }
 
     public static Creator<User> CREATOR = new Creator<User>() {
