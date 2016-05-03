@@ -1,2 +1,2 @@
 # github-client
-Клиент для github.com
+Мобильный клиент для github.com под Android

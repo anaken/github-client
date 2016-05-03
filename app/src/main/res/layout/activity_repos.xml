@@ -3,13 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="biz.mesto.anaken.githubclient.MainActivity">
+    tools:context="biz.mesto.anaken.githubclient.ReposActivity">
 
     <fragment
-        android:id="@+id/users_list"
-        android:name="biz.mesto.anaken.githubclient.UsersListFragment"
+        android:id="@+id/repos_fragment"
+        android:name="biz.mesto.anaken.githubclient.ReposListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout="@layout/users_list_fragment" />
+        tools:layout="@layout/repos_list_fragment"/>
 
 </RelativeLayout>

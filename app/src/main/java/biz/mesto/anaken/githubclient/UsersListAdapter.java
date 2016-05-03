@@ -2,118 +2,67 @@ package biz.mesto.anaken.githubclient;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.net.Uri;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 
-public class UsersListAdapter extends BaseAdapter {
-    Context ctx;
-    LayoutInflater lInflater;
-    ArrayList<User> users;
+public class UsersListAdapter<E> extends ArrayListAdapter<E> {
 
-    UsersListAdapter(Context context, ArrayList<User> setUsers) {
-        ctx = context;
-        users = setUsers;
-        lInflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    OnUserSelectedListener onUserSelectedListener;
+
+    UsersListAdapter(Context context, int resource, ArrayList<E> objects) {
+        super(context, resource, objects);
     }
 
     @Override
-    public int getCount() {
-        return users.size();
-    }
+    public void buildView(View view, int position) {
+        User u = (User)getItem(position);
 
-    @Override
-    public Object getItem(int position) {
-        return users.get(position);
-    }
+        View.OnClickListener nameOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onUserSelectedListener != null) {
+                    User u = (User)getItem((Integer) ((View)v.getParent()).getTag());
+                    onUserSelectedListener.onUserLoginSelected(u);
+                }
+            }
+        };
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
+        ImageView avatarView = (ImageView)view.findViewById(R.id.ivUserAvatar);
+        avatarView.setOnClickListener(nameOnClickListener);
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View view = convertView;
-        if (view == null) {
-            view = lInflater.inflate(R.layout.users_list_item, parent, false);
-        }
+        u.setAvatarToView(context, avatarView);
 
-        User u = users.get(position);
+        TextView loginView = (TextView)view.findViewById(R.id.tvUser);
+        loginView.setText(u.login);
+        loginView.setOnClickListener(nameOnClickListener);
 
-        ImageView avatarView = (ImageView)view.findViewById(R.id.imageView);
-
-        if (u.login.contains("h")) {
-            Bitmap bitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
-            bitmap.eraseColor(Color.rgb(194, 167, 124));
-            Canvas canvas = new Canvas(bitmap);
-            Paint p = new Paint();
-            p.setTextAlign(Paint.Align.CENTER);
-            p.setColor(Color.BLACK);
-            p.setTextSize(40);
-            canvas.drawText(u.login.substring(0, 2), 25, 37, p);
-            canvas.setBitmap(bitmap);
-            avatarView.setImageBitmap(getCroppedBitmap(bitmap));
-        }
-        else {
-            Picasso.with(ctx).load(u.avatar_url)
-                .fit()
-                .transform(new CircleTransform())
-                .into(avatarView);
-        }
-
-        ((TextView) view.findViewById(R.id.textView)).setText(u.login);
-        Button btn = (Button) view.findViewById(R.id.button);
+        Button btn = (Button) view.findViewById(R.id.btnUserGo);
         btn.setTag(position);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                User u = users.get((Integer) v.getTag());
-                Toast.makeText(ctx, "Переходим к профилю", Toast.LENGTH_SHORT).show();
+                User u = (User)getItem((Integer) ((View)v.getParent()).getTag());
+                Toast.makeText(context, "Переходим к профилю", Toast.LENGTH_SHORT).show();
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(u.html_url));
-                ctx.startActivity(browserIntent);
+                context.startActivity(browserIntent);
             }
         });
-
-        return view;
     }
 
-    public Bitmap getCroppedBitmap(Bitmap bitmap) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
-                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
+    public interface OnUserSelectedListener {
+        public void onUserLoginSelected(User user);
+    }
 
-        final int color = 0xff424242;
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
-                bitmap.getWidth() / 2, paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
-        return output;
+    public void setOnUserSelectedListener(OnUserSelectedListener listener) {
+        onUserSelectedListener = listener;
     }
 }

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="false">
+
+    <RatingBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ivRepoStar"
+        android:numStars="1"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBottom="@+id/btnRepoGo"
+        android:stepSize="1"
+        android:clickable="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/tvRepoName"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="5dp"
+        android:layout_toRightOf="@+id/ivRepoStar"
+        android:layout_toLeftOf="@+id/tvRepoUpdated"
+        android:layout_marginRight="10dp"
+        android:singleLine="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/goto_repo_web"
+        android:id="@+id/btnRepoGo"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/tvRepoDesc"
+        android:layout_below="@+id/tvRepoName"
+        android:layout_alignLeft="@+id/tvRepoName"
+        android:layout_alignStart="@+id/tvRepoName"
+        android:layout_toLeftOf="@+id/btnRepoGo"
+        android:layout_marginRight="10dp"
+        android:singleLine="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/tvRepoUpdated"
+        android:layout_alignTop="@+id/tvRepoName"
+        android:layout_toLeftOf="@+id/btnRepoGo"
+        android:layout_toStartOf="@+id/btnRepoGo" />
+
+
+
+</RelativeLayout>

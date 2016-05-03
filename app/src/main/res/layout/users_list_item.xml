@@ -6,7 +6,7 @@
     <ImageView
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:id="@+id/imageView"
+        android:id="@+id/ivUserAvatar"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -16,18 +16,18 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Medium Text"
-        android:id="@+id/textView"
+        android:id="@+id/tvUser"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/imageView"
-        android:layout_toEndOf="@+id/imageView"
-        android:layout_alignBaseline="@+id/button"
+        android:layout_toRightOf="@+id/ivUserAvatar"
+        android:layout_toEndOf="@+id/ivUserAvatar"
+        android:layout_alignBaseline="@+id/btnUserGo"
         android:layout_marginLeft="10dp" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/goto_user_repo"
-        android:id="@+id/button"
+        android:id="@+id/btnUserGo"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />

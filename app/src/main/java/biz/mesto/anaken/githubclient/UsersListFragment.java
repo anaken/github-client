@@ -1,6 +1,9 @@
 package biz.mesto.anaken.githubclient;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +16,7 @@ import android.widget.ProgressBar;
 import com.android.volley.Response;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class UsersListFragment extends Fragment {
 
@@ -22,6 +26,7 @@ public class UsersListFragment extends Fragment {
     ArrayList<User> users;
     Boolean loading = false;
     ProgressBar progressBar;
+    OnUserSelectedListener onUserSelectedListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -46,13 +51,16 @@ public class UsersListFragment extends Fragment {
             }
         });
 
-        if (savedInstanceState != null) {
-            users = savedInstanceState.getParcelableArrayList("users");
-            usersListAdapter = new UsersListAdapter(getActivity(), users);
-            lvMain.setAdapter(usersListAdapter);
-            setLoading(false);
-        }
-        else {
+        usersListAdapter = new UsersListAdapter<>(getActivity(), R.layout.users_list_item, users);
+        usersListAdapter.setOnUserSelectedListener(new UsersListAdapter.OnUserSelectedListener() {
+            @Override
+            public void onUserLoginSelected(User user) {
+                onUserSelected(user);
+            }
+        });
+        lvMain.setAdapter(usersListAdapter);
+
+        if (savedInstanceState == null) {
             drawUsersList(0);
         }
 
@@ -63,16 +71,7 @@ public class UsersListFragment extends Fragment {
         UsersProvider.getUsers(getActivity(), new Response.Listener<User[]>() {
             @Override
             public void onResponse(User[] responseUsers) {
-                for (User u : responseUsers) {
-                    users.add(u);
-                }
-                if (usersListAdapter == null) {
-                    usersListAdapter = new UsersListAdapter(getActivity(), users);
-                    lvMain.setAdapter(usersListAdapter);
-                }
-                else {
-                    usersListAdapter.notifyDataSetChanged();
-                }
+                setUsers(responseUsers);
                 setLoading(false);
             }
         }, since);
@@ -81,6 +80,54 @@ public class UsersListFragment extends Fragment {
     private void setLoading(Boolean loads) {
         loading = loads;
         progressBar.setVisibility(loading ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    private void setUsers(ArrayList<User> setUsers) {
+        if (setUsers != null) {
+            users.addAll(setUsers);
+        }
+        usersListAdapter.notifyDataSetChanged();
+    }
+
+    private void setUsers(User[] setUsers) {
+        users.addAll(Arrays.asList(setUsers));
+        usersListAdapter.notifyDataSetChanged();
+    }
+
+    public interface OnUserSelectedListener {
+        public void onUserSelected(User user);
+    }
+
+    public void onUserSelected(User u) {
+        if (onUserSelectedListener != null) {
+            onUserSelectedListener.onUserSelected(u);
+        }
+    }
+
+    @Override
+    public void onAttach(Context activity) {
+        super.onAttach(activity);
+        try {
+            onUserSelectedListener = (OnUserSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Activity must implement UsersListFragment.OnUserSelectedListener.");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onUserSelectedListener = null;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            ArrayList<User> setUsers = savedInstanceState.getParcelableArrayList("users");
+            setUsers(setUsers);
+            setLoading(false);
+        }
     }
 
     public void onSaveInstanceState(Bundle savedState) {

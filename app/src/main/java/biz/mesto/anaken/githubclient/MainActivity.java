@@ -1,26 +1,26 @@
 package biz.mesto.anaken.githubclient;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 
-public class MainActivity extends FragmentActivity {
-
-    private FragmentManager manager;
+public class MainActivity extends FragmentActivity
+        implements UsersListFragment.OnUserSelectedListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
 
-        manager = getSupportFragmentManager();
+    private void showUser(User user) {
+        Intent intent = new Intent(this, ReposActivity.class);
+        intent.putExtra("user", user);
+        startActivity(intent);
+    }
 
-        if (savedInstanceState == null) {
-            FragmentTransaction transaction = manager.beginTransaction();
-            transaction.add(R.id.container, new UsersListFragment());
-            transaction.commit();
-        }
-
+    @Override
+    public void onUserSelected(User user) {
+        showUser(user);
     }
 }

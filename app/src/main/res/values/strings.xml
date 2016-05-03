@@ -2,4 +2,6 @@
     <string name="app_name">Github Client</string>
     <string name="goto_user_repo">Посмотреть</string>
     <string name="profile_title">Профиль пользователя</string>
+    <string name="goto_repo_web">WEB</string>
+    <string name="most_active_githubers">Самые активные гитхаберы</string>
 </resources>

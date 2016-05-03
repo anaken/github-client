@@ -1,9 +1,21 @@
 package biz.mesto.anaken.githubclient;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.widget.ImageView;
 
 import com.google.gson.annotations.SerializedName;
+import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
 
 public class User implements Parcelable {
     @SerializedName("login") public String login;
@@ -20,6 +32,12 @@ public class User implements Parcelable {
         html_url = parcel.readString();
         repos_url = parcel.readString();
         avatar_url = parcel.readString();
+    }
+
+    public User(HashMap params) {
+        id = Integer.parseInt(params.get("id").toString());
+        login = params.get("login").toString();
+        avatar_url = params.get("avatar_url").toString();
     }
 
     @Override
@@ -50,4 +68,44 @@ public class User implements Parcelable {
         }
 
     };
+
+    public void setAvatarToView(Context context, ImageView v) {
+        if (login.contains("h")) {
+            Bitmap bitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
+            bitmap.eraseColor(Color.rgb(194, 167, 124));
+            Canvas canvas = new Canvas(bitmap);
+            Paint p = new Paint();
+            p.setTextAlign(Paint.Align.CENTER);
+            p.setColor(Color.BLACK);
+            p.setTextSize(40);
+            canvas.drawText(login.substring(0, 2), 25, 37, p);
+            canvas.setBitmap(bitmap);
+            v.setImageBitmap(getCroppedBitmap(bitmap));
+        }
+        else {
+            Picasso.with(context).load(avatar_url)
+                .fit()
+                .transform(new CircleTransform())
+                .into(v);
+        }
+    }
+
+    public Bitmap getCroppedBitmap(Bitmap bitmap) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
+                bitmap.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        return output;
+    }
 }
