@@ -59,16 +59,8 @@ public class ReposListAdapter<E> extends ArrayListAdapter<E> {
             }
         });
 
-        Locale local = new Locale("ru","RU");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        SimpleDateFormat dstFormat = new SimpleDateFormat("hh:mm dd MMM yyyy", local);
-        try {
-            Date convertedDate = dateFormat.parse(repo.updated_at.replace("T", " ").substring(0, 19));
-            TextView dateView = (TextView)view.findViewById(R.id.tvRepoUpdated);
-            dateView.setText(dstFormat.format(convertedDate));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        TextView dateView = (TextView)view.findViewById(R.id.tvRepoUpdated);
+        dateView.setText(Helper.dateFormat(repo.updated_at));
 
         RatingBar ratingBar = (RatingBar)view.findViewById(R.id.ivRepoStar);
         int rate = repo.getRate(context);

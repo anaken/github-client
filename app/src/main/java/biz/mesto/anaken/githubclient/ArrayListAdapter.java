@@ -1,7 +1,6 @@
 package biz.mesto.anaken.githubclient;
 
 import android.content.Context;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +8,6 @@ import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 
 abstract public class ArrayListAdapter<E> extends BaseAdapter {
 

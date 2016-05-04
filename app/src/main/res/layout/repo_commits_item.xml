@@ -1,6 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-</LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Текст коммита"
+        android:id="@+id/tvCommitText"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="10dp"
+        android:layout_toLeftOf="@+id/btnCommitDownload"
+        android:singleLine="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Автор коммита"
+        android:id="@+id/tvCommitAuthor"
+        android:layout_alignBottom="@+id/btnCommitDownload"
+        android:layout_alignLeft="@+id/tvCommitText"
+        android:layout_alignStart="@+id/tvCommitText"
+        android:layout_toLeftOf="@+id/tvCommitDate"
+        android:layout_marginBottom="5dp"
+        android:singleLine="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnCommitDownload"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="5dp"
+        android:enabled="true"
+        android:foreground="@android:drawable/stat_sys_download"
+        android:foregroundGravity="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Дата коммита"
+        android:id="@+id/tvCommitDate"
+        android:layout_alignBottom="@+id/btnCommitDownload"
+        android:layout_toLeftOf="@+id/btnCommitDownload"
+        android:layout_toStartOf="@+id/btnCommitDownload"
+        android:layout_marginBottom="5dp"
+        android:singleLine="true" />
+</RelativeLayout>

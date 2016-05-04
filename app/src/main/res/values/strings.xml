@@ -4,4 +4,5 @@
     <string name="profile_title">Профиль пользователя</string>
     <string name="goto_repo_web">WEB</string>
     <string name="most_active_githubers">Самые активные гитхаберы</string>
+    <string name="repo_last_commits">Последние коммиты</string>
 </resources>

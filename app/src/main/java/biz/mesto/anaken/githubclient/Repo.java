@@ -74,14 +74,14 @@ public class Repo implements Parcelable {
     public int getRate(Context context) {
         DBHelper dbHelper = new DBHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor c = db.query("repos_rates", new String[]{"rate"}, "name = ?", new String[] { full_name }, null, null, null);
+        Cursor c = db.query("repos_subs", new String[]{"name"}, "name = ?", new String[] { full_name }, null, null, null);
         if (c.moveToFirst()) {
             dbHelper.close();
-            return c.getInt(0);
+            return 1;
         }
         else {
             dbHelper.close();
-            return -1;
+            return 0;
         }
     }
 
@@ -89,13 +89,13 @@ public class Repo implements Parcelable {
         DBHelper dbHelper = new DBHelper(context);
         ContentValues cv = new ContentValues();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        cv.put("rate", rate);
-        if (getRate(context) >= 0) {
-            db.update("repos_rates", cv, "name = ?", new String[] { full_name });
+        int thisRate = getRate(context);
+        cv.put("name", full_name);
+        if (rate > 0 && thisRate == 0) {
+            db.insert("repos_subs", null, cv);
         }
-        else {
-            cv.put("name", full_name);
-            db.insert("repos_rates", null, cv);
+        else if (rate == 0 && thisRate > 0) {
+            db.delete("repos_subs", "name = ?", new String[] { full_name });
         }
         dbHelper.close();
     }
@@ -134,6 +134,7 @@ public class Repo implements Parcelable {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Log.e("MYLOG", "error: " + error.toString());
                         Toast.makeText(context, "Ошибка запроса к серверу", Toast.LENGTH_SHORT).show();
                     }
                 }

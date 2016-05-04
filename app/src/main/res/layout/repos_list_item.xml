@@ -23,7 +23,6 @@
         android:text="Medium Text"
         android:id="@+id/tvRepoName"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="5dp"
         android:layout_toRightOf="@+id/ivRepoStar"
         android:layout_toLeftOf="@+id/tvRepoUpdated"
         android:layout_marginRight="10dp"
@@ -59,7 +58,8 @@
         android:id="@+id/tvRepoUpdated"
         android:layout_alignTop="@+id/tvRepoName"
         android:layout_toLeftOf="@+id/btnRepoGo"
-        android:layout_toStartOf="@+id/btnRepoGo" />
+        android:layout_toStartOf="@+id/btnRepoGo"
+        android:layout_marginTop="5dp" />
 
 
 
