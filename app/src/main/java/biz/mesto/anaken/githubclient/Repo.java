@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -16,8 +15,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+
 public class Repo implements Parcelable {
     @SerializedName("id") public int id;
+    @SerializedName("user_id") public int user_id;
     @SerializedName("name") public String name;
     @SerializedName("full_name") public String full_name;
     @SerializedName("description") public String description;
@@ -29,6 +31,7 @@ public class Repo implements Parcelable {
 
     public Repo(Parcel parcel) {
         id = parcel.readInt();
+        user_id = parcel.readInt();
         name = parcel.readString();
         full_name = parcel.readString();
         description = parcel.readString();
@@ -47,6 +50,7 @@ public class Repo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
+        dest.writeInt(user_id);
         dest.writeString(name);
         dest.writeString(full_name);
         dest.writeString(description);
@@ -87,11 +91,11 @@ public class Repo implements Parcelable {
 
     public void setRate(Context context, int rate) {
         DBHelper dbHelper = new DBHelper(context);
-        ContentValues cv = new ContentValues();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int thisRate = getRate(context);
-        cv.put("name", full_name);
         if (rate > 0 && thisRate == 0) {
+            ContentValues cv = new ContentValues();
+            cv.put("name", full_name);
             db.insert("repos_subs", null, cv);
         }
         else if (rate == 0 && thisRate > 0) {
@@ -100,37 +104,102 @@ public class Repo implements Parcelable {
         dbHelper.close();
     }
 
-    public void getContributors(final Context context, Response.Listener<User[]> listener) {
-        String url = contributors_url;
+    public void store(Context context) {
+        final Parcel parcel = Parcel.obtain();
+        writeToParcel(parcel, 0);
+        byte[] data = parcel.marshall();
+        parcel.recycle();
 
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
-
-        GsonRequest<User[]> jsObjRequest = new GsonRequest<>(
-            url,
-            User[].class,
-            null,
-            listener,
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(context, "Ошибка запроса к серверу", Toast.LENGTH_SHORT).show();
-                }
-            }
-        );
-
-        requestQueue.add(jsObjRequest);
+        ContentValues values = new ContentValues();
+        values.put("id", id);
+        values.put("user_id", user_id);
+        values.put("full_name", full_name);
+        values.put("data", data);
+        DBHelper dbHelper = new DBHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.insert("repos", null, values);
     }
 
-    public void getCommits(final Context context, Response.Listener<RepoCommit[]> listener) {
-        String url = commits_url.replace("{/sha}", "");
+    public void getContributors(final Context context, final Response.Listener<User[]> listener) {
+        if (Helper.isOnline(context)) {
+            Response.Listener<User[]> resultListener = new Response.Listener<User[]>() {
+                @Override
+                public void onResponse(User[] response) {
+                    SQLiteDatabase db = Helper.db(context);
+                    db.delete("repos_contribs", "repo_id = ?", new String[]{ Integer.toString(id) });
+                    db.close();
+                    int sort = 0;
+                    for (User u : response) {
+                        u.contrib_id = id;
+                        u.storeAsContrib(context, sort);
+                        sort++;
+                    }
+                    listener.onResponse(response);
+                }
+            };
 
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
+            String url = contributors_url;
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            GsonRequest<User[]> jsObjRequest = new GsonRequest<>(
+                url,
+                User[].class,
+                null,
+                resultListener,
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(context, "Ошибка запроса к серверу", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            );
+            requestQueue.add(jsObjRequest);
+        }
+        else {
+            SQLiteDatabase db = Helper.db(context);
+            Cursor c = db.query("repos_contribs", null, "repo_id = ?", new String[]{ Integer.toString(id) }, null, null, "sort");
+            ArrayList<User> users = new ArrayList<>();
+            if (c.moveToFirst()) {
+                do {
+                    byte[] data = c.getBlob(c.getColumnIndex("data"));
+                    final Parcel parcel = Parcel.obtain();
+                    parcel.unmarshall(data, 0, data.length);
+                    parcel.setDataPosition(0);
+                    User u = new User(parcel);
+                    parcel.recycle();
+                    users.add(u);
+                } while (c.moveToNext());
+            }
+            db.close();
 
-        GsonRequest<RepoCommit[]> jsObjRequest = new GsonRequest<>(
+            User[] response = new User[users.size()];
+            response = users.toArray(response);
+            listener.onResponse(response);
+        }
+    }
+
+    public void getCommits(final Context context, final Response.Listener<RepoCommit[]> listener) {
+        if (Helper.isOnline(context)) {
+            Response.Listener<RepoCommit[]> resultListener = new Response.Listener<RepoCommit[]>() {
+                @Override
+                public void onResponse(RepoCommit[] response) {
+                    SQLiteDatabase db = Helper.db(context);
+                    db.delete("repos_commits", "repo_id = ?", new String[]{ Integer.toString(id) });
+                    db.close();
+                    for (RepoCommit rc : response) {
+                        rc.repo_id = id;
+                        rc.store(context);
+                    }
+                    listener.onResponse(response);
+                }
+            };
+
+            String url = commits_url.replace("{/sha}", "");
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            GsonRequest<RepoCommit[]> jsObjRequest = new GsonRequest<>(
                 url,
                 RepoCommit[].class,
                 null,
-                listener,
+                resultListener,
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
@@ -138,8 +207,29 @@ public class Repo implements Parcelable {
                         Toast.makeText(context, "Ошибка запроса к серверу", Toast.LENGTH_SHORT).show();
                     }
                 }
-        );
+            );
+            requestQueue.add(jsObjRequest);
+        }
+        else {
+            SQLiteDatabase db = Helper.db(context);
+            Cursor c = db.query("repos_commits", null, "repo_id = ?", new String[]{ Integer.toString(id) }, null, null, "date");
+            ArrayList<RepoCommit> commits = new ArrayList<>();
+            if (c.moveToFirst()) {
+                do {
+                    byte[] data = c.getBlob(c.getColumnIndex("data"));
+                    final Parcel parcel = Parcel.obtain();
+                    parcel.unmarshall(data, 0, data.length);
+                    parcel.setDataPosition(0);
+                    RepoCommit rc = new RepoCommit(parcel);
+                    parcel.recycle();
+                    commits.add(rc);
+                } while (c.moveToNext());
+            }
+            db.close();
 
-        requestQueue.add(jsObjRequest);
+            RepoCommit[] response = new RepoCommit[commits.size()];
+            response = commits.toArray(response);
+            listener.onResponse(response);
+        }
     }
 }

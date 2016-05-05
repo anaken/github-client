@@ -63,9 +63,7 @@ public class DownloadService extends IntentService {
                 downloading = false;
             }
 
-            final int dl_progress = (bytes_downloaded * 100) / bytes_total;
-
-            Log.e("MYLOG", "downloading... " + dl_progress);
+            final int dl_progress = bytes_total > 0 ? (int)((bytes_downloaded * 100.0) / bytes_total) : 0;
 
             cursor.close();
 

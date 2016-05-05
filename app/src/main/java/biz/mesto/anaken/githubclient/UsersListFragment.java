@@ -68,7 +68,7 @@ public class UsersListFragment extends Fragment {
     }
 
     private void drawUsersList(int since) {
-        UsersProvider.getUsers(getActivity(), new Response.Listener<User[]>() {
+        User.getUsers(getActivity(), new Response.Listener<User[]>() {
             @Override
             public void onResponse(User[] responseUsers) {
                 setUsers(responseUsers);

@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentActivity;
 public class MainActivity extends FragmentActivity
         implements UsersListFragment.OnUserSelectedListener {
 
-    final static int DB_VERSION = 2;
+    final static int DB_VERSION = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

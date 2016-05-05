@@ -12,6 +12,10 @@ class DBHelper extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table repos_subs (name text, ts string);");
+        db.execSQL("create table users (id int primary key, data blob);");
+        db.execSQL("create table repos (id int, user_id int, full_name string, data blob);");
+        db.execSQL("create table repos_contribs (id int, repo_id int, sort int, data blob);");
+        db.execSQL("create table repos_commits (sha string, repo_id int, date string, data blob);");
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -23,6 +27,20 @@ class DBHelper extends SQLiteOpenHelper {
                 db.execSQL("create table repos_subs (name text primary key, ts string);");
                 db.execSQL("insert into repos_subs (name) select name from tmp_repos_rates;");
                 db.execSQL("drop table repos_rates;");
+                db.setTransactionSuccessful();
+            }
+            finally {
+                db.endTransaction();
+            }
+        }
+
+        if (oldVersion == 2 && newVersion == 3) {
+            db.beginTransaction();
+            try {
+                db.execSQL("create table users (id int primary key, data blob);");
+                db.execSQL("create table repos (id int, user_id int, full_name string, data blob);");
+                db.execSQL("create table repos_contribs (id int, repo_id int, sort int, data blob);");
+                db.execSQL("create table repos_commits (sha string, repo_id int, date string, data blob);");
                 db.setTransactionSuccessful();
             }
             finally {

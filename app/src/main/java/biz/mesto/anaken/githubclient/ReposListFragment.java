@@ -69,13 +69,13 @@ public class ReposListFragment extends Fragment {
 
     private void drawReposList(User u) {
         setLoading(true);
-        ReposProvider.getRepos(getActivity(), new Response.Listener<Repo[]>() {
+        u.getRepos(getActivity(), new Response.Listener<Repo[]>() {
             @Override
             public void onResponse(Repo[] responseRepos) {
                 setRepos(responseRepos);
                 setLoading(false);
             }
-        }, u);
+        });
     }
 
     private void setLoading(Boolean loading) {
