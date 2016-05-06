@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.android.volley.Response;
 
@@ -21,18 +22,21 @@ public class ReposListFragment extends Fragment {
 
     View view;
     User user;
+    TextView userName;
     ImageView avatarView;
     ListView lvRepoList;
     ProgressBar progressBar;
     ArrayList<Repo> repos;
     ReposListAdapter reposListAdapter;
     OnRepoSelectedListener onRepoSelectedListener;
+    String searchQuery;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.repos_list_fragment, container, false);
 
         progressBar = (ProgressBar) view.findViewById(R.id.reposProgressBar);
+        userName = (TextView) view.findViewById(R.id.tvUserName);
         avatarView = (ImageView) view.findViewById(R.id.avatarImageView);
 
         repos = new ArrayList<>();
@@ -56,12 +60,14 @@ public class ReposListFragment extends Fragment {
 
     public void setUser(User u) {
         user = u;
+        userName.setText(u.login);
         user.setAvatarToView(getActivity(), avatarView);
         drawReposList(u);
     }
 
     public void setUser(User u, ArrayList<Repo> setRepos) {
         user = u;
+        userName.setText(u.login);
         user.setAvatarToView(getActivity(), avatarView);
         setRepos(setRepos);
         setLoading(false);
@@ -92,6 +98,11 @@ public class ReposListFragment extends Fragment {
     private void setRepos(Repo[] setRepos) {
         repos.addAll(Arrays.asList(setRepos));
         reposListAdapter.notifyDataSetChanged();
+    }
+
+    public void search(String query) {
+        searchQuery = query;
+        reposListAdapter.search(query);
     }
 
     public interface OnRepoSelectedListener {

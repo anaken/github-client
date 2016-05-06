@@ -29,6 +29,11 @@ public class ReposListAdapter<E> extends ArrayListAdapter<E> {
     }
 
     @Override
+    protected String getItemSearchText(int position) {
+        return ((Repo) objects.get(position)).name;
+    }
+
+    @Override
     public void buildView(View view, int position) {
 
         final Repo repo = (Repo)getItem(position);

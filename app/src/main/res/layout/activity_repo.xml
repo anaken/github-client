@@ -4,7 +4,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="biz.mesto.anaken.githubclient.RepoActivity">
+    tools:context="biz.mesto.anaken.githubclient.RepoActivity"
+    android:clickable="true">
 
     <fragment
         android:id="@+id/repo_fragment"

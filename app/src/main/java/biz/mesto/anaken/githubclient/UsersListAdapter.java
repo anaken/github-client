@@ -23,6 +23,11 @@ public class UsersListAdapter<E> extends ArrayListAdapter<E> {
     }
 
     @Override
+    protected String getItemSearchText(int position) {
+        return ((User)objects.get(position)).login;
+    }
+
+    @Override
     public void buildView(View view, int position) {
         User u = (User)getItem(position);
 

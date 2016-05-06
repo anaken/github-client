@@ -151,6 +151,7 @@ public class User implements Parcelable {
         values.put("data", data);
         SQLiteDatabase db = Helper.db(context);
         db.insert("users", null, values);
+        db.close();
     }
 
     public void storeAsContrib(Context context, int sort) {
@@ -166,6 +167,7 @@ public class User implements Parcelable {
         values.put("data", data);
         SQLiteDatabase db = Helper.db(context);
         db.insert("repos_contribs", null, values);
+        db.close();
     }
 
     public void getRepos(final Context context, final Response.Listener<Repo[]> listener) {

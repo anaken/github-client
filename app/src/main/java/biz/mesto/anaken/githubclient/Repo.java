@@ -76,22 +76,20 @@ public class Repo implements Parcelable {
     };
 
     public int getRate(Context context) {
-        DBHelper dbHelper = new DBHelper(context);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = Helper.db(context);
         Cursor c = db.query("repos_subs", new String[]{"name"}, "name = ?", new String[] { full_name }, null, null, null);
         if (c.moveToFirst()) {
-            dbHelper.close();
+            db.close();
             return 1;
         }
         else {
-            dbHelper.close();
+            db.close();
             return 0;
         }
     }
 
     public void setRate(Context context, int rate) {
-        DBHelper dbHelper = new DBHelper(context);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = Helper.db(context);
         int thisRate = getRate(context);
         if (rate > 0 && thisRate == 0) {
             ContentValues cv = new ContentValues();
@@ -101,7 +99,7 @@ public class Repo implements Parcelable {
         else if (rate == 0 && thisRate > 0) {
             db.delete("repos_subs", "name = ?", new String[] { full_name });
         }
-        dbHelper.close();
+        db.close();
     }
 
     public void store(Context context) {
@@ -115,9 +113,9 @@ public class Repo implements Parcelable {
         values.put("user_id", user_id);
         values.put("full_name", full_name);
         values.put("data", data);
-        DBHelper dbHelper = new DBHelper(context);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = Helper.db(context);
         db.insert("repos", null, values);
+        db.close();
     }
 
     public void getContributors(final Context context, final Response.Listener<User[]> listener) {

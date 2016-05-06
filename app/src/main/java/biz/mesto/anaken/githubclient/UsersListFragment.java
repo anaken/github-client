@@ -27,6 +27,7 @@ public class UsersListFragment extends Fragment {
     Boolean loading = false;
     ProgressBar progressBar;
     OnUserSelectedListener onUserSelectedListener;
+    String searchQuery;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,7 +44,7 @@ public class UsersListFragment extends Fragment {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (totalItemCount > 0 && (firstVisibleItem + visibleItemCount) >= totalItemCount) {
-                    if ( ! loading) {
+                    if ( ! loading && Helper.isOnline(getContext()) && (searchQuery == null || searchQuery.length() == 0)) {
                         setLoading(true);
                         drawUsersList(users.get(totalItemCount - 1).id);
                     }
@@ -92,6 +93,11 @@ public class UsersListFragment extends Fragment {
     private void setUsers(User[] setUsers) {
         users.addAll(Arrays.asList(setUsers));
         usersListAdapter.notifyDataSetChanged();
+    }
+
+    public void search(String query) {
+        searchQuery = query;
+        usersListAdapter.search(query);
     }
 
     public interface OnUserSelectedListener {

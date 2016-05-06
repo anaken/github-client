@@ -5,4 +5,6 @@
     <string name="goto_repo_web">WEB</string>
     <string name="most_active_githubers">Самые активные гитхаберы</string>
     <string name="repo_last_commits">Последние коммиты</string>
+    <string name="search_hint">Поиск</string>
+    <string name="search_title">Найти</string>
 </resources>

@@ -14,7 +14,9 @@ abstract public class ArrayListAdapter<E> extends BaseAdapter {
     Context context;
     LayoutInflater lInflater;
     ArrayList<E> objects;
+    ArrayList<Integer> searchObjects;
     int resource;
+    String searchQuery;
 
     ArrayListAdapter(Context context, int resource, ArrayList<E> objects) {
         this.context = context;
@@ -29,18 +31,23 @@ abstract public class ArrayListAdapter<E> extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return objects.size();
+        return getSearchObjects().size();
     }
 
     @Override
     public E getItem(int position) {
-        return objects.get(position);
+        if (position >= getSearchObjects().size()) {
+            return null;
+        }
+        return objects.get(getSearchObjects().get(position));
     }
 
     @Override
     public long getItemId(int position) {
         return position;
     }
+
+    abstract protected String getItemSearchText(int position);
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -65,5 +72,29 @@ abstract public class ArrayListAdapter<E> extends BaseAdapter {
     public void addAll(ArrayList<? extends E> objects) {
         this.objects.addAll(objects);
         notifyDataSetChanged();
+    }
+
+    public void search(String searchQuery) {
+        this.searchQuery = searchQuery;
+        searchObjects = null;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        searchObjects = null;
+        super.notifyDataSetChanged();
+    }
+
+    private ArrayList<Integer> getSearchObjects() {
+        if (searchObjects == null) {
+            searchObjects = new ArrayList<>();
+            for (int i = 0; i < objects.size(); i++) {
+                if (searchQuery == null || searchQuery.length() == 0 || getItemSearchText(i).contains(searchQuery)) {
+                    searchObjects.add(i);
+                }
+            }
+        }
+        return searchObjects;
     }
 }

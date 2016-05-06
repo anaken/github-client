@@ -3,13 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="biz.mesto.anaken.githubclient.MainActivity">
+    tools:context="biz.mesto.anaken.githubclient.MainActivity"
+    android:clickable="true">
+
+    <include layout="@layout/toolbar_search" />
 
     <fragment
         android:id="@+id/users_list"
         android:name="biz.mesto.anaken.githubclient.UsersListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout="@layout/users_list_fragment" />
+        tools:layout="@layout/users_list_fragment"
+        android:layout_marginTop="56dp" />
 
 </RelativeLayout>
