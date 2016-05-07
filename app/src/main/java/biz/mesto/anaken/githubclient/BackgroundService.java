@@ -1,25 +1,18 @@
 package biz.mesto.anaken.githubclient;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.android.volley.Response;
 
+import org.json.JSONException;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class BackgroundService extends Service {
@@ -42,6 +35,8 @@ public class BackgroundService extends Service {
                             continue;
                         }
 
+                        TimeUnit.SECONDS.sleep(20);
+
                         SQLiteDatabase db = Helper.db(getApplicationContext());
                         Cursor c = db.query("repos_subs", new String[]{"name", "user_id", "ts"}, null, null, null, null, null);
                         if (c.moveToFirst()) {
@@ -49,6 +44,7 @@ public class BackgroundService extends Service {
                                 final String repoName = c.getString(0);
                                 int repoUserId = c.getInt(1);
                                 final String repoTS = c.getString(2);
+//                                final String repoTS = "2010-06-19T21:18:37Z";
                                 Repo.get(getApplicationContext(), repoName, repoUserId, new Response.Listener<Repo>() {
                                     @Override
                                     public void onResponse(final Repo repo) {
@@ -56,7 +52,7 @@ public class BackgroundService extends Service {
                                             @Override
                                             public void onResponse(RepoCommit[] response) {
                                                 if (response.length > 0) {
-                                                    showNotice(repo);
+                                                    sendNotice(repo);
                                                     repo.setRate(getApplicationContext(), 1, repo.pushed_at);
                                                 }
                                             }
@@ -67,7 +63,6 @@ public class BackgroundService extends Service {
                         }
                         db.close();
 
-                        TimeUnit.SECONDS.sleep(20);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -87,33 +82,15 @@ public class BackgroundService extends Service {
         super.onDestroy();
     }
 
-    private void showNotice(Repo repo) {
-        Intent resultIntent = new Intent(this, RepoActivity.class);
-        resultIntent.putExtra(RepoActivity.EXTRA_REPO, repo);
-        resultIntent.putExtra(RepoActivity.EXTRA_NOTICED, true);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            resultIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        );
-
-        Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-        NotificationCompat.Builder mBuilder =
-            new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.notification_icon_transparent)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.notification_icon))
-                .setAutoCancel(true)
-                .setOnlyAlertOnce(true)
-                .setContentTitle("Новый коммит")
-                .setContentText("В репозитории " + repo.full_name + " появился новый коммит")
-                .setSound(soundUri)
-                .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 })
-                .setContentIntent(resultPendingIntent);
-
-        int mNotificationId = 1;
-        NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+    private void sendNotice(Repo repo) {
+        Map<String, String> args = new HashMap<>();
+        args.put("message", "В репозитории " + repo.full_name + " появился новый коммит");
+        args.put("repo_name", repo.full_name);
+        args.put("repo_user_id", Integer.toString(repo.user_id));
+        try {
+            GcmSender.send(args);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

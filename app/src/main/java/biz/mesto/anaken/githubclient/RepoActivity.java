@@ -3,7 +3,6 @@ package biz.mesto.anaken.githubclient;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
 public class RepoActivity extends FragmentActivity {
 
@@ -11,7 +10,7 @@ public class RepoActivity extends FragmentActivity {
     public static final String EXTRA_NOTICED = "notice";
 
     Repo repo;
-    Boolean noticed;
+    int noticed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +21,7 @@ public class RepoActivity extends FragmentActivity {
             Intent intent = getIntent();
             Bundle args = intent.getExtras();
             repo = args.getParcelable(EXTRA_REPO);
-            noticed = args.getBoolean(EXTRA_NOTICED);
+            noticed = args.getInt(EXTRA_NOTICED);
 
             if (repo != null) {
                 RepoFragment repoFragment = (RepoFragment) getSupportFragmentManager().findFragmentById(R.id.repo_fragment);
@@ -33,7 +32,7 @@ public class RepoActivity extends FragmentActivity {
 
     @Override
     public void onBackPressed() {
-        if (noticed != null) {
+        if (noticed > 0) {
             System.exit(0);
         }
         super.onBackPressed();

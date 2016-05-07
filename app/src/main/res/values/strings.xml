@@ -7,4 +7,5 @@
     <string name="repo_last_commits">Последние коммиты</string>
     <string name="search_hint">Поиск</string>
     <string name="search_title">Найти</string>
+    <string name="gcm_sender_id">924364933033</string>
 </resources>

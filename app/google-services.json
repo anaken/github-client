@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "924364933033",
+    "project_id": "github-client-dcf66"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924364933033:android:def8d194c943f2cc",
+        "android_client_info": {
+          "package_name": "biz.mesto.anaken.githubclient"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtjdSWWNiMCed2rjfvZ1ggRdzb8VOdajk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

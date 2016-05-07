@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity
         registerReceiver(receiver, new IntentFilter(DownloadService.CHANNEL));
 
         startService(new Intent(this, BackgroundService.class));
+
+        startService(new Intent(this, RegistrationIntentService.class));
     }
 
     @Override

@@ -3,25 +3,25 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <android.support.v4.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:id="@+id/repos_swipe_container">
+        android:id="@+id/swipe_container">
 
-        <biz.mesto.anaken.githubclient.HeaderGridView
+        <GridView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/lvRepoList"
-            android:numColumns="1"/>
+            android:layout_height="wrap_content"
+            android:id="@+id/listView"
+            android:layout_gravity="center_horizontal"
+            android:numColumns="2" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/reposProgressBar"
+        android:id="@+id/progressBar"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:indeterminate="false" />
-
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

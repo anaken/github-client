@@ -1,6 +1,7 @@
 package biz.mesto.anaken.githubclient;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -22,7 +24,7 @@ public class UsersListFragment extends Fragment implements SwipeRefreshLayout.On
 
     View view;
     UsersListAdapter usersListAdapter;
-    ListView lvMain;
+    AbsListView lvMain;
     ArrayList<User> users;
     Boolean loading = false;
     ProgressBar progressBar;
@@ -42,7 +44,12 @@ public class UsersListFragment extends Fragment implements SwipeRefreshLayout.On
             refreshLayout.setOnRefreshListener(this);
         }
 
-        lvMain = (ListView) view.findViewById(R.id.listView);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            lvMain = (GridView) view.findViewById(R.id.listView);
+        }
+        else {
+            lvMain = (ListView) view.findViewById(R.id.listView);
+        }
         lvMain.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {}

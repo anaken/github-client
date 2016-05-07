@@ -1,6 +1,7 @@
 package biz.mesto.anaken.githubclient;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,7 +25,7 @@ public class ReposListFragment extends Fragment implements SwipeRefreshLayout.On
     User user;
     TextView userName;
     ImageView avatarView;
-    ListView lvRepoList;
+    HeaderGridView lvRepoList;
     ProgressBar progressBar;
     ArrayList<Repo> repos;
     ReposListAdapter reposListAdapter;
@@ -50,7 +50,10 @@ public class ReposListFragment extends Fragment implements SwipeRefreshLayout.On
         userName = (TextView) vRepoListHeader.findViewById(R.id.tvUserName);
         avatarView = (ImageView) vRepoListHeader.findViewById(R.id.avatarImageView);
 
-        lvRepoList = (ListView) view.findViewById(R.id.lvRepoList);
+        lvRepoList = (HeaderGridView) view.findViewById(R.id.lvRepoList);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            lvRepoList.setNumColumns(2);
+        }
         lvRepoList.addHeaderView(vRepoListHeader);
         reposListAdapter = new ReposListAdapter<>(getActivity(), R.layout.repos_list_item, repos);
         reposListAdapter.setOnRepoClickedListener(new ReposListAdapter.OnRepoClickedListener() {
