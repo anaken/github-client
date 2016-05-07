@@ -17,7 +17,7 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity
         implements UsersListFragment.OnUserSelectedListener {
 
-    final static int DB_VERSION = 3;
+    final static int DB_VERSION = 4;
 
     MenuItem searchItem;
     Bundle savedState;
@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(mActionBarToolbar);
 
         registerReceiver(receiver, new IntentFilter(DownloadService.CHANNEL));
+
+        startService(new Intent(this, BackgroundService.class));
     }
 
     @Override

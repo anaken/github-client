@@ -11,7 +11,7 @@ class DBHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table repos_subs (name text, ts string);");
+        db.execSQL("create table repos_subs (name string, user_id int, ts string);");
         db.execSQL("create table users (id int primary key, data blob);");
         db.execSQL("create table repos (id int, user_id int, full_name string, data blob);");
         db.execSQL("create table repos_contribs (id int, repo_id int, sort int, data blob);");
@@ -41,6 +41,24 @@ class DBHelper extends SQLiteOpenHelper {
                 db.execSQL("create table repos (id int, user_id int, full_name string, data blob);");
                 db.execSQL("create table repos_contribs (id int, repo_id int, sort int, data blob);");
                 db.execSQL("create table repos_commits (sha string, repo_id int, date string, data blob);");
+                db.setTransactionSuccessful();
+            }
+            finally {
+                db.endTransaction();
+            }
+        }
+
+        if (oldVersion == 3 && newVersion == 4) {
+            db.beginTransaction();
+            try {
+                db.execSQL("create temporary table tmp_repos_subs (name text, ts string);");
+                db.execSQL("insert into tmp_repos_subs select name, ts from repos_subs;");
+                db.execSQL("drop table repos_subs;");
+                db.execSQL("create table repos_subs (name string, user_id int, ts string);");
+                db.execSQL("insert into repos_subs (name, user_id, ts) "
+                    + "select rs.name, r.user_id, rs.ts from tmp_repos_subs as rs"
+                    + " inner join repos r on r.full_name = rs.name;"
+                );
                 db.setTransactionSuccessful();
             }
             finally {

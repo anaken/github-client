@@ -11,10 +11,10 @@ import java.util.Date;
 import java.util.Locale;
 
 public class Helper {
-    public static String dateFormat(String date) {
+    public static String dateFormat(String date, String format) {
         Locale local = new Locale("ru","RU");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        SimpleDateFormat dstFormat = new SimpleDateFormat("hh:mm dd MMM yyyy", local);
+        SimpleDateFormat dstFormat = new SimpleDateFormat(format, local);
         String result = "";
         try {
             Date convertedDate = dateFormat.parse(date.replace("T", " ").substring(0, 19));
@@ -23,6 +23,10 @@ public class Helper {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public static String dateFormat(String date) {
+        return Helper.dateFormat(date, "hh:mm dd MMM yyyy");
     }
 
     public static boolean isOnline(Context context) {

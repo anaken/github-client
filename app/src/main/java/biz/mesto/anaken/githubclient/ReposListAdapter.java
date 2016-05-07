@@ -69,7 +69,7 @@ public class ReposListAdapter<E> extends ArrayListAdapter<E> {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     int rate = ratingBar.getRating() == 1 ? 0 : 1;
                     Repo repo = (Repo)getItem((Integer) ((View)v.getParent()).getTag());
-                    repo.setRate(context, rate);
+                    repo.setRate(context, rate, null);
                     ratingBar.setRating(rate);
                     return true;
                 }

@@ -85,7 +85,7 @@ public class ReposActivity extends AppCompatActivity
 
     private void showRepo(Repo repo) {
         Intent intent = new Intent(this, RepoActivity.class);
-        intent.putExtra("repo", repo);
+        intent.putExtra(RepoActivity.EXTRA_REPO, repo);
         startActivity(intent);
     }
 
