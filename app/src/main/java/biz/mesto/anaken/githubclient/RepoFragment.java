@@ -1,5 +1,6 @@
 package biz.mesto.anaken.githubclient;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,8 +28,6 @@ public class RepoFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     ProgressBar progressBar;
     Boolean loadingContribs;
     Boolean loadingCommits;
-    ListView lvRepoUsersTop;
-    RepoContribsAdapter lvRepoUsersTopAdapter;
     ArrayList<User> contributors;
     ArrayList<RepoCommit> commits;
     LayoutInflater inflater;
@@ -51,10 +49,6 @@ public class RepoFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         repoName = (TextView)view.findViewById(R.id.tvRepoMainName);
         repoDesc = (TextView)view.findViewById(R.id.tvRepoMainDesc);
         progressBar = (ProgressBar)view.findViewById(R.id.repoProgressBar);
-
-        lvRepoUsersTop = (ListView)view.findViewById(R.id.lvRepoUsersTop);
-        lvRepoUsersTopAdapter = new RepoContribsAdapter<>(getActivity(), R.layout.repo_contribs_item);
-        lvRepoUsersTop.setAdapter(lvRepoUsersTopAdapter);
 
         if (savedInstanceState == null) {
 
@@ -104,20 +98,84 @@ public class RepoFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             n++;
         }
         contributors.addAll(sublist);
-        lvRepoUsersTopAdapter.addAll(sublist);
+        LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.lvRepoUsersTop);
+        LinearLayout.LayoutParams rowContainerParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        int cols = 1;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            cols = 2;
+        }
+        View v;
+        for (int i = 0; i < contributors.size(); i += cols) {
+            LinearLayout rowContainer = new LinearLayout(getActivity());
+            rowContainer.setOrientation(LinearLayout.HORIZONTAL);
+            rowContainer.setWeightSum((float)cols);
+
+            v = buildContribView(i);
+            v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+            rowContainer.addView(v);
+
+            if (cols > 1) {
+                if (i + 1 < contributors.size()) {
+                    v = buildContribView(i + 1);
+                }
+                else {
+                    v = new View(getActivity());
+                }
+                v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+                rowContainer.addView(v);
+            }
+
+            linearLayout.addView(rowContainer, rowContainerParams);
+        }
         loadingContribs = false;
     }
 
     private void buildCommitsList(RepoCommit[] response) {
         commits.addAll(Arrays.asList(response));
-        for (int i = 0; i < commits.size(); i++) {
-            buildCommitView(i);
+        LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.llRepoCommits);
+        LinearLayout.LayoutParams rowContainerParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        int cols = 1;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            cols = 2;
+        }
+        View v;
+        for (int i = 0; i < commits.size(); i += 2) {
+            LinearLayout rowContainer = new LinearLayout(getActivity());
+            rowContainer.setOrientation(LinearLayout.HORIZONTAL);
+            rowContainer.setWeightSum((float)cols);
+
+            v = buildCommitView(i);
+            v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+            rowContainer.addView(v);
+
+            if (cols > 1) {
+                if (i + 1 < commits.size()) {
+                    v = buildCommitView(i + 1);
+                }
+                else {
+                    v = new View(getActivity());
+                }
+                v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+                rowContainer.addView(v);
+            }
+
+            linearLayout.addView(rowContainer, rowContainerParams);
         }
         loadingCommits = false;
     }
 
+    private View buildContribView(int position) {
+        View view = inflater.inflate(R.layout.repo_contribs_item, null);
+        view.setTag(position);
+
+        User user = contributors.get(position);
+        TextView textView = (TextView)view.findViewById(R.id.tvRepoContribName);
+        textView.setText(user.login);
+
+        return view;
+    }
+
     private View buildCommitView(int position) {
-        LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.llRepoCommits);
         View view = inflater.inflate(R.layout.repo_commits_item, null);
         view.setTag(position);
 
@@ -142,8 +200,6 @@ public class RepoFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             }
         });
 
-        linearLayout.addView(view);
-
         return view;
     }
 
@@ -162,8 +218,8 @@ public class RepoFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             repo = savedInstanceState.getParcelable("repo");
-            contributors = savedInstanceState.getParcelableArrayList("contributors");
-            commits = savedInstanceState.getParcelableArrayList("commits");
+            ArrayList<User> contributors = savedInstanceState.getParcelableArrayList("contributors");
+            ArrayList<RepoCommit> commits = savedInstanceState.getParcelableArrayList("commits");
             if (repo != null) {
                 repoName.setText(repo.name);
                 repoDesc.setText(repo.description);

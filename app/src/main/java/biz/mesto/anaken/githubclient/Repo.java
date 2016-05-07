@@ -265,7 +265,6 @@ public class Repo implements Parcelable {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e("MYLOG", "error: " + error.toString());
                         Toast.makeText(context, "Ошибка запроса к серверу", Toast.LENGTH_SHORT).show();
                     }
                 }

@@ -53,7 +53,7 @@ public class GcmSender {
             // Read GCM response.
             InputStream inputStream = conn.getInputStream();
             String resp = IOUtils.toString(inputStream);
-            Log.e("MYLOG", "GcmSender responce: " + resp);
+            Log.i("MYLOG", "GcmSender responce: " + resp);
         } catch (IOException e) {
             e.printStackTrace();
         }
