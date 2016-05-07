@@ -72,6 +72,7 @@ public class RepoCommit implements Parcelable {
         values.put("data", data);
         SQLiteDatabase db = Helper.db(context);
         db.insert("repos_commits", null, values);
+        db.close();
     }
 
     public void download(Context context) {

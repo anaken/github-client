@@ -3,6 +3,7 @@ package biz.mesto.anaken.githubclient;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,13 +13,14 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class RepoFragment extends Fragment {
+public class RepoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     View view;
     Repo repo;
@@ -32,6 +34,7 @@ public class RepoFragment extends Fragment {
     ArrayList<User> contributors;
     ArrayList<RepoCommit> commits;
     LayoutInflater inflater;
+    SwipeRefreshLayout refreshLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,6 +43,11 @@ public class RepoFragment extends Fragment {
 
         contributors = new ArrayList<>();
         commits = new ArrayList<>();
+
+        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.repo_swipe_container);
+        if (refreshLayout != null) {
+            refreshLayout.setOnRefreshListener(this);
+        }
 
         repoName = (TextView)view.findViewById(R.id.tvRepoMainName);
         repoDesc = (TextView)view.findViewById(R.id.tvRepoMainDesc);
@@ -72,33 +80,41 @@ public class RepoFragment extends Fragment {
         repo.getContributors(getActivity(), new Response.Listener<User[]>() {
             @Override
             public void onResponse(User[] response) {
-                ArrayList<User> sublist = new ArrayList<>();
-                int max = 5;
-                int n = 1;
-                for (User u : response) {
-                    if (n > max) {
-                        break;
-                    }
-                    sublist.add(u);
-                    n++;
-                }
-                contributors.addAll(sublist);
-                lvRepoUsersTopAdapter.addAll(sublist);
-                loadingContribs = false;
+                buildContribsList(response);
                 stopLoading();
             }
         });
         repo.getCommits(getActivity(), new Response.Listener<RepoCommit[]>() {
             @Override
             public void onResponse(RepoCommit[] response) {
-                commits.addAll(Arrays.asList(response));
-                for (int i = 0; i < commits.size(); i++) {
-                    buildCommitView(i);
-                }
-                loadingCommits = false;
+                buildCommitsList(response);
                 stopLoading();
             }
         });
+    }
+
+    private void buildContribsList(User[] response) {
+        ArrayList<User> sublist = new ArrayList<>();
+        int max = 5;
+        int n = 1;
+        for (User u : response) {
+            if (n > max) {
+                break;
+            }
+            sublist.add(u);
+            n++;
+        }
+        contributors.addAll(sublist);
+        lvRepoUsersTopAdapter.addAll(sublist);
+        loadingContribs = false;
+    }
+
+    private void buildCommitsList(RepoCommit[] response) {
+        commits.addAll(Arrays.asList(response));
+        for (int i = 0; i < commits.size(); i++) {
+            buildCommitView(i);
+        }
+        loadingCommits = false;
     }
 
     private View buildCommitView(int position) {
@@ -146,9 +162,20 @@ public class RepoFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
-            Repo r = savedInstanceState.getParcelable("repo");
-            ArrayList<User> contributors = savedInstanceState.getParcelableArrayList("contributors");
-            setRepo(r);
+            repo = savedInstanceState.getParcelable("repo");
+            contributors = savedInstanceState.getParcelableArrayList("contributors");
+            commits = savedInstanceState.getParcelableArrayList("commits");
+            if (repo != null) {
+                repoName.setText(repo.name);
+                repoDesc.setText(repo.description);
+            }
+            if (contributors != null) {
+                buildContribsList(contributors.toArray(new User[contributors.size()]));
+            }
+            if (commits != null) {
+                buildCommitsList(commits.toArray(new RepoCommit[commits.size()]));
+            }
+            stopLoading();
         }
     }
 
@@ -156,5 +183,21 @@ public class RepoFragment extends Fragment {
         super.onSaveInstanceState(savedState);
         savedState.putParcelable("repo", repo);
         savedState.putParcelableArrayList("contributors", contributors);
+        savedState.putParcelableArrayList("commits", commits);
+    }
+
+    @Override
+    public void onRefresh() {
+        if (Helper.isOnline(getContext())) {
+            if (repo != null) {
+                contributors.clear();
+                commits.clear();
+                drawLists();
+            }
+        }
+        else {
+            Toast.makeText(getContext(), "Ошибка подключения к серверу", Toast.LENGTH_SHORT).show();
+        }
+        refreshLayout.setRefreshing(false);
     }
 }

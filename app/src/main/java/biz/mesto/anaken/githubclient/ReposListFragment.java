@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +12,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ReposListFragment extends Fragment {
+public class ReposListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     View view;
     User user;
@@ -30,18 +31,27 @@ public class ReposListFragment extends Fragment {
     ReposListAdapter reposListAdapter;
     OnRepoSelectedListener onRepoSelectedListener;
     String searchQuery;
+    SwipeRefreshLayout refreshLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.repos_list_fragment, container, false);
 
         progressBar = (ProgressBar) view.findViewById(R.id.reposProgressBar);
-        userName = (TextView) view.findViewById(R.id.tvUserName);
-        avatarView = (ImageView) view.findViewById(R.id.avatarImageView);
 
         repos = new ArrayList<>();
 
+        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.repos_swipe_container);
+        if (refreshLayout != null) {
+            refreshLayout.setOnRefreshListener(this);
+        }
+
+        View vRepoListHeader = inflater.inflate(R.layout.repos_list_header, null);
+        userName = (TextView) vRepoListHeader.findViewById(R.id.tvUserName);
+        avatarView = (ImageView) vRepoListHeader.findViewById(R.id.avatarImageView);
+
         lvRepoList = (ListView) view.findViewById(R.id.lvRepoList);
+        lvRepoList.addHeaderView(vRepoListHeader);
         reposListAdapter = new ReposListAdapter<>(getActivity(), R.layout.repos_list_item, repos);
         reposListAdapter.setOnRepoClickedListener(new ReposListAdapter.OnRepoClickedListener() {
             @Override
@@ -145,5 +155,19 @@ public class ReposListFragment extends Fragment {
         super.onSaveInstanceState(savedState);
         savedState.putParcelable("user", user);
         savedState.putParcelableArrayList("repos", repos);
+    }
+
+    @Override
+    public void onRefresh() {
+        if (Helper.isOnline(getContext())) {
+            if (user != null) {
+                repos.clear();
+                drawReposList(user);
+            }
+        }
+        else {
+            Toast.makeText(getContext(), "Ошибка подключения к серверу", Toast.LENGTH_SHORT).show();
+        }
+        refreshLayout.setRefreshing(false);
     }
 }

@@ -25,8 +25,6 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 
 public class User implements Parcelable {
 
@@ -206,7 +204,7 @@ public class User implements Parcelable {
         }
         else {
             SQLiteDatabase db = Helper.db(context);
-            Cursor c = db.query("repos", null, "user_id = ?", new String[]{ Integer.toString(id) }, null, null, "full_name");
+            Cursor c = db.query("repos", null, "user_id = ?", new String[]{ Integer.toString(id) }, null, null, "lower(full_name)");
             ArrayList<Repo> repos = new ArrayList<>();
             if (c.moveToFirst()) {
                 do {

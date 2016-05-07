@@ -1,24 +1,24 @@
 package biz.mesto.anaken.githubclient;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class UsersListFragment extends Fragment {
+public class UsersListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     View view;
     UsersListAdapter usersListAdapter;
@@ -28,6 +28,7 @@ public class UsersListFragment extends Fragment {
     ProgressBar progressBar;
     OnUserSelectedListener onUserSelectedListener;
     String searchQuery;
+    SwipeRefreshLayout refreshLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -35,6 +36,11 @@ public class UsersListFragment extends Fragment {
         progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
 
         users = new ArrayList<>();
+
+        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+        if (refreshLayout != null) {
+            refreshLayout.setOnRefreshListener(this);
+        }
 
         lvMain = (ListView) view.findViewById(R.id.listView);
         lvMain.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -139,5 +145,17 @@ public class UsersListFragment extends Fragment {
     public void onSaveInstanceState(Bundle savedState) {
         super.onSaveInstanceState(savedState);
         savedState.putParcelableArrayList("users", users);
+    }
+
+    @Override
+    public void onRefresh() {
+        if (Helper.isOnline(getContext())) {
+            users.clear();
+            drawUsersList(0);
+        }
+        else {
+            Toast.makeText(getContext(), "Ошибка подключения к серверу", Toast.LENGTH_SHORT).show();
+        }
+        refreshLayout.setRefreshing(false);
     }
 }

@@ -2,12 +2,11 @@ package biz.mesto.anaken.githubclient;
 
 import android.app.DownloadManager;
 import android.app.IntentService;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
-import android.util.Log;
 
 public class DownloadService extends IntentService {
 

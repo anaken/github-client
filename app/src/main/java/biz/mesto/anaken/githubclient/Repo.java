@@ -78,14 +78,9 @@ public class Repo implements Parcelable {
     public int getRate(Context context) {
         SQLiteDatabase db = Helper.db(context);
         Cursor c = db.query("repos_subs", new String[]{"name"}, "name = ?", new String[] { full_name }, null, null, null);
-        if (c.moveToFirst()) {
-            db.close();
-            return 1;
-        }
-        else {
-            db.close();
-            return 0;
-        }
+        int result = c.moveToFirst() ? 1 : 0;
+        db.close();
+        return result;
     }
 
     public void setRate(Context context, int rate) {
