@@ -7,13 +7,17 @@
     tools:context="biz.mesto.anaken.githubclient.ReposActivity"
     android:clickable="true">
 
-    <include layout="@layout/toolbar_search"
+    <android.support.v7.widget.Toolbar
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/toolbar_actionbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:layout_height="?android:actionBarSize"
+        android:background="@color/colorPrimary"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/include2" />
+        android:layout_alignParentStart="true"/>
 
     <fragment
         android:id="@+id/repos_fragment"
@@ -21,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@layout/repos_list_fragment"
-        android:layout_below="@+id/include2"
+        android:layout_below="@+id/toolbar_actionbar"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
