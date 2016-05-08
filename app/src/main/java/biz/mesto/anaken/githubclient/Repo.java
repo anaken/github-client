@@ -15,6 +15,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.annotations.SerializedName;
 
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 
 public class Repo implements Parcelable {
@@ -91,11 +93,14 @@ public class Repo implements Parcelable {
         int thisRate = getRate(context);
         if (rate > 0) {
             ContentValues cv = new ContentValues();
+            if (ts == null) {
+                ts = pushed_at;
+            }
+            DateTime dt = DateTime.parse(ts);
+            dt = dt.plusSeconds(1);
+            ts = dt.toString();
+            cv.put("ts", ts);
             if (thisRate > 0) {
-                if (ts == null) {
-                    ts = pushed_at;
-                }
-                cv.put("ts", ts);
                 db.update("repos_subs", cv, "name = ?", new String[] { full_name });
             }
             else {
@@ -256,6 +261,9 @@ public class Repo implements Parcelable {
             if (since != null) {
                 url += "?since=" + since;
             }
+
+            Log.i("MYLOG", "checking commits: " + url);
+
             RequestQueue requestQueue = Volley.newRequestQueue(context);
             GsonRequest<RepoCommit[]> jsObjRequest = new GsonRequest<>(
                 url,
@@ -275,7 +283,7 @@ public class Repo implements Parcelable {
             String where = "repo_id = ?";
             String[] whereParams;
             if (since != null) {
-                where += ", date > ?";
+                where += " and date > ?";
                 whereParams = new String[]{ Integer.toString(id), since };
             }
             else {

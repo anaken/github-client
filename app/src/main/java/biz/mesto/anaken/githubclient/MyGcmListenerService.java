@@ -56,7 +56,7 @@ public class MyGcmListenerService extends GcmListenerService {
                 .setContentTitle("Новый коммит")
                 .setContentText("В репозитории " + repo.full_name + " появился новый коммит")
                 .setSound(soundUri)
-                .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 })
+                .setVibrate(new long[] { 1000, 1000, 1000 })
                 .setContentIntent(resultPendingIntent);
 
         int mNotificationId = 1;

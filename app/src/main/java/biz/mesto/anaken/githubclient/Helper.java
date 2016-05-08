@@ -13,20 +13,24 @@ import java.util.Locale;
 public class Helper {
     public static String dateFormat(String date, String format) {
         Locale local = new Locale("ru","RU");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         SimpleDateFormat dstFormat = new SimpleDateFormat(format, local);
-        String result = "";
-        try {
-            Date convertedDate = dateFormat.parse(date.replace("T", " ").substring(0, 19));
-            result = dstFormat.format(convertedDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return result;
+        Date convertedDate = Helper.date(date);
+        return dstFormat.format(convertedDate);
     }
 
     public static String dateFormat(String date) {
         return Helper.dateFormat(date, "hh:mm dd MMM yyyy");
+    }
+
+    public static Date date(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        Date result = null;
+        try {
+            result = dateFormat.parse(date.replace("T", " ").substring(0, 19));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public static boolean isOnline(Context context) {
