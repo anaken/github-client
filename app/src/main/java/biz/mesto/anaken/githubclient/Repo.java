@@ -106,6 +106,7 @@ public class Repo implements Parcelable {
             }
             else {
                 cv.put("name", full_name);
+                cv.put("user_id", user_id);
                 db.insert("repos_subs", null, cv);
             }
         }
