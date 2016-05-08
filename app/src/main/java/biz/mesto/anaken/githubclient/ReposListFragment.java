@@ -105,11 +105,16 @@ public class ReposListFragment extends Fragment implements SwipeRefreshLayout.On
         if (setRepos != null) {
             repos.addAll(setRepos);
         }
-        reposListAdapter.notifyDataSetChanged();
+        onReposSet();
     }
 
     private void setRepos(Repo[] setRepos) {
         repos.addAll(Arrays.asList(setRepos));
+        onReposSet();
+    }
+
+    private void onReposSet() {
+        reposListAdapter.setSubsRepos(user.getReposRates(getContext()));
         reposListAdapter.notifyDataSetChanged();
     }
 

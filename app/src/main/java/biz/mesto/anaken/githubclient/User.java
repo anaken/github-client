@@ -26,8 +26,6 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class User implements Parcelable {
 

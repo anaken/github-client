@@ -14,6 +14,8 @@ import java.util.ArrayList;
 
 public class ReposListAdapter<E> extends ArrayListAdapter<E> {
 
+    private ArrayList<String> subsRepos;
+
     OnRepoClickedListener onRepoClickedListener;
 
     ReposListAdapter(Context context, int resource, ArrayList<E> objects) {
@@ -60,8 +62,7 @@ public class ReposListAdapter<E> extends ArrayListAdapter<E> {
         dateView.setText(Helper.dateFormat(repo.updated_at));
 
         RatingBar ratingBar = (RatingBar)view.findViewById(R.id.ivRepoStar);
-        int rate = repo.getRate(context);
-        ratingBar.setRating(rate >= 0 ? rate : 0);
+        ratingBar.setRating((float) isRepoSubscribed(repo.full_name));
         ratingBar.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -90,5 +91,21 @@ public class ReposListAdapter<E> extends ArrayListAdapter<E> {
 
     public void setOnRepoClickedListener(OnRepoClickedListener listener) {
         onRepoClickedListener = listener;
+    }
+
+    public void setSubsRepos(ArrayList<String> reposNames) {
+        subsRepos = reposNames;
+    }
+
+    private int isRepoSubscribed(String repoName) {
+        if (subsRepos == null) {
+            return 0;
+        }
+        for (String name : subsRepos) {
+            if (name.equals(repoName)) {
+                return 1;
+            }
+        }
+        return 0;
     }
 }
