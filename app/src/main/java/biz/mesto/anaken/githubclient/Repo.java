@@ -208,17 +208,25 @@ public class Repo implements Parcelable {
         if (Helper.isOnline(context)) {
             Response.Listener<User[]> resultListener = new Response.Listener<User[]>() {
                 @Override
-                public void onResponse(User[] response) {
-                    SQLiteDatabase db = Helper.db(context);
-                    db.delete("repos_contribs", "repo_id = ?", new String[]{ Integer.toString(id) });
-                    db.close();
-                    int sort = 0;
-                    for (User u : response) {
-                        u.contrib_id = id;
-                        u.storeAsContrib(context, sort);
-                        sort++;
-                    }
-                    listener.onResponse(response);
+                public void onResponse(User[] users) {
+                    (new AsyncTask<User[], Void, Void>(){
+                        @Override
+                        protected Void doInBackground(User[]... params) {
+                            SQLiteDatabase db = Helper.db(context);
+                            db.delete("repos_contribs", "repo_id = ?", new String[]{ Integer.toString(id) });
+                            db.close();
+                            int sort = 0;
+                            for (User[] users : params) {
+                                for (User u : users) {
+                                    u.contrib_id = id;
+                                    u.storeAsContrib(context, sort);
+                                    sort++;
+                                }
+                            }
+                            return null;
+                        }
+                    }).execute(users);
+                    listener.onResponse(users);
                 }
             };
 
@@ -269,15 +277,23 @@ public class Repo implements Parcelable {
         if (Helper.isOnline(context)) {
             Response.Listener<RepoCommit[]> resultListener = new Response.Listener<RepoCommit[]>() {
                 @Override
-                public void onResponse(RepoCommit[] response) {
-                    SQLiteDatabase db = Helper.db(context);
-                    db.delete("repos_commits", "repo_id = ?", new String[]{ Integer.toString(id) });
-                    db.close();
-                    for (RepoCommit rc : response) {
-                        rc.repo_id = id;
-                        rc.store(context);
-                    }
-                    listener.onResponse(response);
+                public void onResponse(RepoCommit[] commits) {
+                    (new AsyncTask<RepoCommit[], Void, Void>(){
+                        @Override
+                        protected Void doInBackground(RepoCommit[]... params) {
+                            SQLiteDatabase db = Helper.db(context);
+                            db.delete("repos_commits", "repo_id = ?", new String[]{ Integer.toString(id) });
+                            db.close();
+                            for (RepoCommit[] commits : params) {
+                                for (RepoCommit rc : commits) {
+                                    rc.repo_id = id;
+                                    rc.store(context);
+                                }
+                            }
+                            return null;
+                        }
+                    }).execute(commits);
+                    listener.onResponse(commits);
                 }
             };
 

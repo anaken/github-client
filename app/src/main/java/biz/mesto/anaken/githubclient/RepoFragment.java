@@ -247,6 +247,10 @@ public class RepoFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             if (repo != null) {
                 contributors.clear();
                 commits.clear();
+                LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.llRepoCommits);
+                linearLayout.removeAllViews();
+                linearLayout = (LinearLayout)view.findViewById(R.id.lvRepoUsersTop);
+                linearLayout.removeAllViews();
                 drawLists();
             }
         }
