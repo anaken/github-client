@@ -17,7 +17,7 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity
         implements UsersListFragment.OnUserSelectedListener {
 
-    final static int DB_VERSION = 4;
+    final static int DB_VERSION = 5;
 
     MenuItem searchItem;
     Bundle savedState;

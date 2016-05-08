@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -115,7 +116,13 @@ public class Repo implements Parcelable {
     }
 
     public void store(Context context) {
-        final Parcel parcel = Parcel.obtain();
+        SQLiteDatabase db = Helper.db(context);
+        store(db);
+        db.close();
+    }
+
+    public void store(SQLiteDatabase db) {
+        Parcel parcel = Parcel.obtain();
         writeToParcel(parcel, 0);
         byte[] data = parcel.marshall();
         parcel.recycle();
@@ -125,9 +132,25 @@ public class Repo implements Parcelable {
         values.put("user_id", user_id);
         values.put("full_name", full_name);
         values.put("data", data);
-        SQLiteDatabase db = Helper.db(context);
         db.insert("repos", null, values);
-        db.close();
+    }
+
+    public static void storeAll(final Context context, final Repo[] repos, final int user_id) {
+        (new AsyncTask<Repo[], Void, Void>(){
+            @Override
+            protected Void doInBackground(Repo[]... reposArray) {
+                SQLiteDatabase db = Helper.db(context);
+                db.delete("repos", "user_id = ?", new String[]{ Integer.toString(user_id) });
+                for (Repo[] repos : reposArray) {
+                    for (Repo r : repos) {
+                        r.user_id = user_id;
+                        r.store(db);
+                    }
+                }
+                db.close();
+                return null;
+            }
+        }).execute(repos);
     }
 
     public static void get(final Context context, String full_name, final int user_id, final Response.Listener<Repo> listener) {

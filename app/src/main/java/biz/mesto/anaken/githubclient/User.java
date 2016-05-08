@@ -11,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.ImageView;
@@ -25,6 +26,8 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class User implements Parcelable {
 
@@ -88,14 +91,7 @@ public class User implements Parcelable {
             Response.Listener<User[]> resultListener = new Response.Listener<User[]>() {
                 @Override
                 public void onResponse(User[] response) {
-                    if (since == 0) {
-                        SQLiteDatabase db = Helper.db(context);
-                        db.delete("users", null, null);
-                        db.close();
-                    }
-                    for (User u : response) {
-                        u.store(context);
-                    }
+                    User.storeAll(context, response, since);
                     listener.onResponse(response);
                 }
             };
@@ -132,8 +128,7 @@ public class User implements Parcelable {
             }
             db.close();
 
-            User[] response = new User[users.size()];
-            response = users.toArray(response);
+            User[] response = users.toArray(new User[users.size()]);
             listener.onResponse(response);
         }
     }
@@ -150,6 +145,25 @@ public class User implements Parcelable {
         SQLiteDatabase db = Helper.db(context);
         db.insert("users", null, values);
         db.close();
+    }
+
+    public static void storeAll(final Context context, User[] users, final int since) {
+        (new AsyncTask<User[], Void, Void>(){
+            @Override
+            protected Void doInBackground(User[]... usersArray) {
+                if (since == 0) {
+                    SQLiteDatabase db = Helper.db(context);
+                    db.delete("users", null, null);
+                    db.close();
+                }
+                for (User[] users : usersArray) {
+                    for (User u : users) {
+                        u.store(context);
+                    }
+                }
+                return null;
+            }
+        }).execute(users);
     }
 
     public void storeAsContrib(Context context, int sort) {
@@ -173,17 +187,12 @@ public class User implements Parcelable {
         url += "/" + login + "/repos";
 
         if (Helper.isOnline(context)) {
+            final int user_id = id;
             Response.Listener<Repo[]> resultListener = new Response.Listener<Repo[]>() {
                 @Override
-                public void onResponse(Repo[] response) {
-                    SQLiteDatabase db = Helper.db(context);
-                    db.delete("repos", "user_id = ?", new String[]{ Integer.toString(id) });
-                    db.close();
-                    for (Repo r : response) {
-                        r.user_id = id;
-                        r.store(context);
-                    }
-                    listener.onResponse(response);
+                public void onResponse(Repo[] repos) {
+                    Repo.storeAll(context, repos, user_id);
+                    listener.onResponse(repos);
                 }
             };
 
@@ -223,6 +232,19 @@ public class User implements Parcelable {
             response = repos.toArray(response);
             listener.onResponse(response);
         }
+    }
+
+    public ArrayList<String> getReposRates(Context context) {
+        SQLiteDatabase db = Helper.db(context);
+        Cursor c = db.query("repos_subs", null, "user_id = ?", new String[]{ Integer.toString(id) }, null, null, null);
+        ArrayList<String> rates = new ArrayList<>();
+        if (c.moveToFirst()) {
+            do {
+                rates.add(c.getString(c.getColumnIndex("name")));
+            } while (c.moveToNext());
+        }
+        db.close();
+        return rates;
     }
 
     public void setAvatarToView(Context context, ImageView v) {
